@@ -31,6 +31,9 @@ pBanner
 printf "\n${purple}  ▸ ${white}LIST      : "
 read pList
 
+## FORMATING LIST ##
+dos2unix List/Send/$pList
+
 ## PLIVO ACCOUNT ##
 pAuth=$(cat Account/plivo.json | jq .authid | tr -d '"')
 pSecret=$(cat Account/plivo.json | jq .secretid | tr -d '"')
