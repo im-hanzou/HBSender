@@ -1,6 +1,6 @@
 
 # HBSender
-[![License](https://img.shields.io/badge/license-MIT-red.svg)](https://github.com/KeepWannabe/HBSender/blob/main/LICENSE.md)   [![Version](https://img.shields.io/badge/Release-1.0-red.svg?maxAge=259200)]()  [![Build](https://img.shields.io/badge/Supported_OS-Linux-yellow.svg)]()  [![Build](https://img.shields.io/badge/Supported_WSL-Windows-blue.svg)]() [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/KeepWannabe/HBSender/issues) [
+[![License](https://img.shields.io/badge/license-MIT-red.svg)](https://github.com/KeepWannabe/HBSender/blob/main/LICENSE.md)   [![Version](https://img.shields.io/badge/Release-1.0-red.svg?maxAge=259200)]()  [![Build](https://img.shields.io/badge/Supported_OS-Linux-yellow.svg)]()  [![Build](https://img.shields.io/badge/Supported_WSL-Windows-blue.svg)]() [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/KeepWannabe/HBSender/issues)
 ### Plivo and Nexmo Bulk Sending SMS Tools
 <img width="935" alt="hbsender" src="https://raw.githubusercontent.com/KeepWannabe/HBSender/main/top-header.jpg">
 
@@ -27,8 +27,30 @@ apt-get install jq curl
 sed -i 's/\r$//' HBSender module/nexmo.send module/plivo.send
 
 ```
+### Post Installation
+API Key is needed before querying on third-party sites, such as ```Plivo and Nexmo```.
+- The API key setting can be done in **Account** folder.
+- **The plivo are sending with random number (based on your numbers at plivo) and shuffling**
+```json
+## NEXMO
+{"apikey":"YOUR_APIKEY","apisecret":"YOUR_SECRETKEY","fromnumber":1234567890}
 
+## PLIVO
+{"authid":"YOUR_APIKEY","secretid":"YOUR_SECRETKEY"}
+```
+And you can setting the messages Letter at **module/nexmo.send** or **module/plivo.send**
+```bash
+## NEXMO
+## LETTER ##
+## $(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6}) ITS A 6 DIGIT RANDOM NUMBER
 
+nLetter="<#> Company: Your OTP code is ($(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6}))."
+
+## PLIVO
+## LETTER ##
+## $(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6}) ITS A 6 DIGIT RANDOM NUMBER
+pLetter="<#> Company: Your OTP code is ($(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6}))."
+```
 ## Usage
 ```text
 ➜  HypeBrotherSender ➜ bash HBSender
