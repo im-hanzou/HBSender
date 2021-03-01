@@ -28,7 +28,6 @@ printf "${blue}
 ${purple}  ▸ ${white}[${purple}1${white}] ${green}NEXMO SENDER
 ${purple}  ▸ ${white}[${purple}2${white}] ${green}PLIVO SENDER
 ${purple}  ▸ ${white}[${purple}3${white}] ${green}TWILLIO SENDER ${white}(${yellow}SOON${white})
-${white}
 "
 printf "${purple}  ▸ ${white}OPTIONS : "
 read options_choose
