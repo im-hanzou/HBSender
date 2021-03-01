@@ -23,7 +23,7 @@ git clone --recursive https://github.com/KeepWannabe/HBSender.git
 ```bash
 # Linux
 apt-get update
-apt-get install jq curl
+apt-get install jq curl dos2unix
 sed -i 's/\r$//' HBSender module/nexmo.send module/plivo.send
 
 ```
