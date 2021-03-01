@@ -35,13 +35,11 @@ read pList
 pAuth=$(cat Account/plivo.json | jq .authid | tr -d '"')
 pSecret=$(cat Account/plivo.json | jq .secretid | tr -d '"')
 
-## CHECK BALANCE ##
-pBalance=$(curl -s --user "$pAuth:$pSecret" "https://api.plivo.com/v1/Account/$pAuth/" | jq ".cash_credits" | tr -d '"')
 
 ## BANNER ##
 clear
 pBanner
-printf "\n${purple}  ▸ ${white}BALANCE : ${yellow}$pBalance
+printf "\n${purple}  ▸ ${white}BALANCE : ${yellow}$(curl -s --user "$pAuth:$pSecret" "https://api.plivo.com/v1/Account/$pAuth/" | jq ".cash_credits" | tr -d '"')
 ${purple}  ▸ ${white}SEND TO ${purple}$(cat List/Send/$pList | wc -l)${white} NUMBERS\n
   ==================================== ${white}$(date +"%H:%M:%S") ====================================\n"
 
@@ -54,6 +52,9 @@ pLetter="<#> PayPal: Your security code is ($(((RND=RANDOM<<15|RANDOM)) ; echo $
 
 function pLoopSend() {
 	pSendMain="${1}"
+    ## CHECK BALANCE ##
+    pBalance=$(curl -s --user "$pAuth:$pSecret" "https://api.plivo.com/v1/Account/$pAuth/" | jq ".cash_credits" | tr -d '"')
+
     if [[ $(curl -s --user "$pAuth:$pSecret" -H "Content-Type: application/json" -d "{\"src\":\"+$rand_from_num\",\"dst\":\"$pSendMain\",\"text\":\"$(echo $pLetter)\",\"url\":\"http://webhook.site/c7a0b423-8d1f-46fe-9a81-1dfa8254bdaf\"}" "https://api.plivo.com/v1/Account/$pAuth/Message/" | jq '.message' | tr -d '"') =~ "message(s) queued" ]]; then
 		printf "  ${white}[$(cat List/Send/$pList | grep -n "$pSendMain" | awk -F ":" '{print $1}')/${purple}$(cat List/Send/$pList | wc -l)${white}] [${yellow}$(date +"%H:%M:%S")${white}]-[${green}DONE${white}]---->>[${purple}Balance ${white}: ${yellow}$pBalance${white}]---->>[SEND TO : ${green}$pSendMain${white}]\n"
 	else
