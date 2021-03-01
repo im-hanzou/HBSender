@@ -1,0 +1,69 @@
+#!/bin/bash
+##############################################################
+##                    COLORING YOUR SHELL                   ##
+##############################################################
+white="\033[1;37m"                                          ##
+grey="\033[0;37m"                                           ##
+purple="\033[0;35m"                                         ##
+red="\e[91m"                                                ##
+green="\e[92m"                                              ##
+yellow="\e[93m"                                             ##
+purple="\033[0;35m"                                         ##
+cafe="\033[0;33m"                                           ##
+fiuscha="\033[0;35m"                                        ##
+blue="\033[0;36m"                                           ##
+darkgrey="\e[100m"                                          ##
+nc="\e[0m"                                                  ##
+##############################################################
+clear
+pBanner() {
+printf "${blue}
+      __  ______ _____                __         
+     / / / / __ ) ___/___  ____  ____/ /__  _____
+    / /_/ / __  \__ \/ _ \/ __ \/ __  / _ \/ ___/
+   / __  / /_/ /__/ /  __/ / / / /_/ /  __/ /    
+  /_/ /_/_____/____/\___/_/ /_/\__,_/\___/_/${white}     
+                                               
+  [${purple}HYPEBROTHER SENDER ${green}2K21${white} - MODE : ${green}PLIVO${white}]
+"
+}
+pBanner
+printf "\n${purple}  ▸ ${white}LIST      : "
+read pList
+
+## PLIVO ACCOUNT ##
+pAuth=$(cat Account/plivo.json | jq .authid | tr -d '"')
+pSecret=$(cat Account/plivo.json | jq .secretid | tr -d '"')
+
+## CHECK BALANCE ##
+pBalance=$(curl -s --user "$pAuth:$pSecret" "https://api.plivo.com/v1/Account/$pAuth/" | jq ".cash_credits" | tr -d '"')
+
+## BANNER ##
+clear
+pBanner
+printf "\n${purple}  ▸ ${white}BALANCE : ${yellow}$pBalance
+${purple}  ▸ ${white}SEND TO ${purple}$(cat List/Send/$pList | wc -l)${white} NUMBERS\n
+  ==================================== ${white}$(date +"%H:%M:%S") ====================================\n"
+
+## RANDOM NUMBER FITURE ##
+rand_from_num=$(curl -s --user "$pAuth:$pSecret" "https://api.plivo.com/v1/Account/$pAuth/Number/" -s | jq '.objects[] | .number' | shuf | head -n 1 | tr -d '"')
+
+## LETTER ##
+## $(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6}) ITS A 6 DIGIT RANDOM NUMBER
+pLetter="<#> PayPal: Your security code is ($(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6})). This code will expire in 10 minutes. If this isn't you, update your information at https://manage-pay.pa.l.webcgi-bin.com/r/6LWfoMw"
+
+function pLoopSend() {
+	pSendMain="${1}"
+    if [[ $(curl -s --user "$pAuth:$pSecret" -H "Content-Type: application/json" -d "{\"src\":\"+$rand_from_num\",\"dst\":\"$pSendMain\",\"text\":\"$(echo $pLetter)\",\"url\":\"http://webhook.site/c7a0b423-8d1f-46fe-9a81-1dfa8254bdaf\"}" "https://api.plivo.com/v1/Account/$pAuth/Message/" | jq '.message' | tr -d '"') =~ "message(s) queued" ]]; then
+		printf "  ${white}[$(cat List/Send/$pList | grep -n "$pSendMain" | awk -F ":" '{print $1}')/${purple}$(cat List/Send/$pList | wc -l)${white}] [${yellow}$(date +"%H:%M:%S")${white}]-[${green}DONE${white}]---->>[${purple}Balance ${white}: ${yellow}$pBalance${white}]---->>[SEND TO : ${green}$pSendMain${white}]\n"
+	else
+		printf "  ${white}[$(cat List/Send/$pList | grep -n "$pSendMain" | awk -F ":" '{print $1}')/${purple}$(cat List/Send/$pList | wc -l)${white}] [${yellow}$(date +"%H:%M:%S")${white}]-[${red}FAIL${white}]---->>[${purple}Error ${white}: ${red}$(curl -s --user "$pAuth:$pSecret" -H "Content-Type: application/json" -d "{\"src\":\"+$rand_from_num\",\"dst\":\"$pSendMain\",\"text\":\"$(cat $letter_plivo)\",\"url\":\"http://webhook.site/c7a0b423-8d1f-46fe-9a81-1dfa8254bdaf\"}" "https://api.plivo.com/v1/Account/$pAuth/Message/" | jq '.error' | tr -d '"')${white}]---->>[SEND TO : ${red}$pSendMain${white}]\n"
+	fi
+}
+
+for pSendMain in $(cat List/Send/$pList); do
+    ((cthread=cthread%2)); ((cthread++==0)) && wait
+    pLoopSend "$pSendMain" &
+done
+wait
+printf "  ==================================== ${white} FINISH  ====================================\n\n"

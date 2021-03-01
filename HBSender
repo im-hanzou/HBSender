@@ -1,0 +1,44 @@
+#!/bin/bash
+##############################################################
+##                    COLORING YOUR SHELL                   ##
+##############################################################
+white="\033[1;37m"                                          ##
+grey="\033[0;37m"                                           ##
+purple="\033[0;35m"                                         ##
+red="\e[91m"                                                ##
+green="\e[92m"                                              ##
+yellow="\e[93m"                                             ##
+purple="\033[0;35m"                                         ##
+cafe="\033[0;33m"                                           ##
+fiuscha="\033[0;35m"                                        ##
+blue="\033[0;36m"                                           ##
+darkgrey="\e[100m"                                          ##
+nc="\e[0m"                                                  ##
+##############################################################
+clear
+printf "${blue}
+      __  ______ _____                __         
+     / / / / __ ) ___/___  ____  ____/ /__  _____
+    / /_/ / __  \__ \/ _ \/ __ \/ __  / _ \/ ___/
+   / __  / /_/ /__/ /  __/ / / / /_/ /  __/ /    
+  /_/ /_/_____/____/\___/_/ /_/\__,_/\___/_/${white}     
+                                               
+  [${purple}HYPEBROTHER SENDER ${green}2K21${white} - LICENSE : ${green}FREE${white}]
+
+${purple}  ▸ ${white}[${purple}1${white}] ${green}NEXMO SENDER
+${purple}  ▸ ${white}[${purple}2${white}] ${green}PLIVO SENDER
+${purple}  ▸ ${white}[${purple}3${white}] ${green}TWILLIO SENDER ${white}(${yellow}SOON${white})
+${white}
+"
+printf "${purple}  ▸ ${white}OPTIONS : "
+read options_choose
+if [[ $options_choose =~ "1" ]]; then
+bash module/nexmo.send
+elif [[ $options_choose =~ "2" ]]; then
+bash module/plivo.send
+elif [[ $options_choose =~ "3" ]]; then
+printf "[!] ${yellow} FITURE COMING SOON${white}"
+else
+printf "${red} WRONG INPUT ?\n"
+exit
+fi
