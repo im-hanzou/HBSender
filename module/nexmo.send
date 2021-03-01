@@ -31,6 +31,9 @@ nBanner
 printf "\n${purple}  ▸ ${white}LIST         : "
 read nList
 
+## FORMATING LIST ##
+dos2unix List/Send/$nList
+
 ## NEXMO ACCOUNT ##
 nKey=$(cat Account/nexmo.json | jq .apikey | tr -d '"')
 nSecret=$(cat Account/nexmo.json | jq .apisecret | tr -d '"')
